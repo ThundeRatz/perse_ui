@@ -1,0 +1,14 @@
+
+launch_files:
+  perse wheel_odom_node.launch:
+    isAliveTopic: 
+      name: /perse/localization/wheel_odom
+      type: nav_msgs/Odometry
+  perse perse.launch:
+    isAliveTopic: 
+      name: /perse/actuator/cmd_vel
+      type: geometry_msgs/Twist
+  perse_sensors perse_sensors.launch:
+    isAliveTopic:
+      name: /perse/actuator/cmd_vel
+      type: /perse/actuator/cmd_vel
