@@ -39,24 +39,26 @@ $: coords.update(() => {
     y = Math.round((y + screen2world(event.detail.dy).y) * 100) / 100
   }
   let show_menu = false
-
+$: document.body.style.cursor = grabbing ? 'grabbing' : ''
 </script>
 
-
 <ContextMenu bind:showModal={show_menu}>
-  <ul class="contextmenu">
-    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
-    <li on:click={() => dispatch('remove', index)}>Remover Ponto</li>
-  </ul>
+<ul class="contextmenu">
+<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+<li on:click={() => dispatch('remove', index)}>Remover Ponto</li>
+</ul>
 </ContextMenu>
 
 <div style="
-background: {has_cone ? "green" : "blue"};
+background: {has_cone ? "#4773B2" : "#545454"};
+color: {has_cone ? "#1D1D1D" : "#e3e3e3"};
+border-color: {has_cone ? "#3662a1" : "#636363"};
 translate: {($camera_coords?.x||0) + $coords.x - 50/2}px {($camera_coords?.y||0) + $coords.y - 50/2}px;
 cursor: {grabbing ? 'grabbing' : 'grab'}
 "
 role="button"
 tabindex="0"
+class="container"
 use:pannable={[0]}
 on:panmove={handlePanMove}
 on:panstart={() => grabbing = true}
@@ -71,7 +73,7 @@ on:contextmenu={e => {
 }}
 >
   <span>
-    p{index}
+    {index}
   </span>
 
   {#if show_popup}
@@ -99,14 +101,21 @@ on:contextmenu={e => {
     }
   }
 
-    div {
+    .container {
       user-select: none;
       position: absolute;
       z-index: 1;
       width: 50px;
+      border-radius: 50%;
       height: 50px;
       display: grid;
       place-items: center;
+      border-width: 1.5px;
+      border-style: solid;
+
+      &:focus-visible {
+        outline: none;
+      }
 
       &>span {
         text-align: center;
@@ -116,9 +125,15 @@ on:contextmenu={e => {
     .popup {
       position: absolute;
       padding: 10px 5px;
-      background: red;
+      width: 50px;
+      background: #1D1D1D;
+      color: #e3e3e3;
+border-radius: 7px;
       left: 55px;
       bottom: 55px;
+display: flex;
+flex-direction: column;
+text-align: center;
     }
 
   </style>

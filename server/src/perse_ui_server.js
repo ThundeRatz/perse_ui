@@ -177,7 +177,7 @@ class PerseuiServer {
       return false
     }
 
-    found_launchfile.child.kill()
+    found_launchfile.child?.kill()
     // killLaunchfile(domain, launchfile, () => {
     //   found_launchfile.child.kill()
     // })
