@@ -346,12 +346,61 @@ rosnodejs.initNode('perse_ui_node')
 
       });
 
+      nh.getParam('perse_tf').then(perse_tf => {
+
+        let prev
+        // TODO -> Se reinscrecer no topico quando der erro
+
+        const onSubscribe = (msg) => {
+          for(let transform of msg.transforms){
+            const frame_id = transform.header.frame_id
+            const child_frame_id = transform.child_frame_id
+
+            if(prev == undefined || !isTransformSimilar(transform.transform, prev) && frame_id == perse_tf.frame_id && child_frame_id == perse_tf.child_frame_id){
+              perseuiServer.io.emit('perse_transform', transform.transform)
+              prev = transform.transform
+              break
+            }
+          }
+        }
+
+        let sub
+
+        const onDisconnect = () => {
+          log(chalk.blue(`[perse_ui] listening to ${perse_tf.tf_topic}`))
+          sub = nh.subscribe(perse_tf.tf_topic, 'tf2_msgs/TFMessage', onSubscribe)
+
+          sub.on('disconnect', onDisconnect)
+        }
+
+        onDisconnect()
+
+
+      })
+
+
+
     })
   });
 
 
 
 });
+
+function isTransformSimilar(t1, t2){
+  const SIGMA = 0.05
+  return (
+    Math.abs(t1.translation.x - t2.translation.x) < SIGMA&&
+    Math.abs(t1.translation.y - t2.translation.y) < SIGMA&&
+    Math.abs(t1.translation.z - t2.translation.z) < SIGMA&&
+
+    Math.abs(t1.rotation.x - t2.rotation.x) < SIGMA &&
+    Math.abs(t1.rotation.y - t2.rotation.y) < SIGMA &&
+    Math.abs(t1.rotation.z - t2.rotation.z) < SIGMA &&
+    Math.abs(t1.rotation.w - t2.rotation.w) < SIGMA
+  )
+}
+
 
 function getNodeTopics(node){
   const stdout = execSync(`rosnode info ${node}`, {stdio : 'pipe' }).toString();

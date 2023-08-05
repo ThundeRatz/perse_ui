@@ -58,10 +58,9 @@ launch_files:
 
 # O que falta ser feito
 
-- Melhorar o visual
 - Adicionar a função de desenhar características da pista que não afetam o código
 - Criar um arquivo que guarda informações da interface
 - Enviar comandos para os terminais a partir da interface (atualmente ela só recebe a saida do terminal)
-- Enviar a posição atual do Perse (odometria) para a interface
+- Descobrir como converter os Quaternions do tf2 para o angulo no eixo z do perse
 - Criar uma forma de visualizar tópicos ROS na interface
 - Repensar a estrutura do código

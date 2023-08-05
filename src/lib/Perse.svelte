@@ -1,6 +1,7 @@
 <script lang="ts">
   import { spring } from "svelte/motion";
   import ContextMenu from "./ContextMenu.svelte";
+  import { world2screen } from "./coordinates";
 
   export let x: number = 0;
   export let y: number = 0;
@@ -14,10 +15,11 @@
     angle: 0
   })
 
+
+
   $: coords.update(() => ({
-      x: Number(x),
-      y: Number(y),
-      angle: angle
+      ...world2screen(-Number(x), -Number(y)),
+      angle: angle+Math.PI*0.7
   }))
 
   let show_menu = false
@@ -40,7 +42,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <div style="
   translate: {($camera_coords?.x||0) + $coords.x - 100/2}px {($camera_coords?.y||0) + $coords.y - 50/2}px;
-  rotate: {-angle}deg
+  rotate: {$coords.angle}rad
   "
   role="button"
   tabindex="0"

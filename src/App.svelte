@@ -12,6 +12,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { Pane, Splitpanes } from 'svelte-splitpanes';
 import BackgroundGrid from "./lib/BackgroundGrid.svelte";
+import quaternion2euler from 'quaternion-to-euler'
 
 const OPTIONS_TERM = {
   useStyle: true,
@@ -124,6 +125,25 @@ onMount(() => {
     }
   })
 
+  socket.on('perse_transform', msg => {
+
+    const [x,y,z] = quaternion2euler(
+      [
+        msg.rotation.w,
+        msg.rotation.x,
+        msg.rotation.y,
+        msg.rotation.z,
+      ]
+    )
+
+    console.log(z*(180/Math.PI))
+    perse_coords = {
+      x: msg.translation.x,
+      y: msg.translation.y,
+      angle: z
+    }
+  })
+
   socket.on('get fields', (msg) => {
     fields = Object.entries(msg.fields)
   })
@@ -191,10 +211,10 @@ let activeConsole = ''
 // move|box
 let activeTool = 'box'
 
-const perse_coords = {
+let perse_coords = {
   x: 0,
   y: 0,
-  angle: 10
+  angle: 0
 }
 
 const offset_coords = writable({
@@ -210,6 +230,7 @@ const point_fields = ['x', 'y', 'has_cone']
 let fields = []
 $: fields, unsaved = true
 $: points, unsaved = true
+
 
 let launchfiles = []
 
@@ -236,8 +257,6 @@ function removePoint(index: number) {
     point.index = point.index - 1;
   }
 }
-
-let count = 0;
 
 </script>
 
