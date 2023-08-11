@@ -3,6 +3,7 @@ import Point from "./lib/Point.svelte";
 import Pannable from "./lib/Pannable.svelte";
 import ContextMenu from "./lib/ContextMenu.svelte"; 
 import { writable } from 'svelte/store';
+import type { Spring } from 'svelte/motion';
 import Perse from "./lib/Perse.svelte";
 import { screen2world } from "./lib/coordinates";
 import { onMount } from "svelte";
@@ -13,6 +14,36 @@ import { FitAddon } from 'xterm-addon-fit';
 import { Pane, Splitpanes } from 'svelte-splitpanes';
 import BackgroundGrid from "./lib/BackgroundGrid.svelte";
 import quaternion2euler from 'quaternion-to-euler'
+
+interface IPoint {
+  x: number,
+  y: number,
+  index: number,
+  has_cone: boolean,
+  key: number,
+}
+
+interface IField {
+  name: string,
+  type: string
+}
+
+interface ILaunchfile {
+  domain: string,
+  launchfile: string,
+  running: boolean,
+  stopping: boolean,
+  terminal: Terminal,
+  term_el: HTMLDivElement
+}
+
+interface ICoords {
+  x: number,
+  y: number,
+  angle: number
+}
+
+type PossibleComands = 'run' | 'stop';
 
 const OPTIONS_TERM = {
   useStyle: true,
@@ -27,7 +58,7 @@ const OPTIONS_TERM = {
 
 const fitaddon = new FitAddon()
 
-function updateOffsetCoords(camera_coords, offsetX, offsetY){
+function updateOffsetCoords(camera_coords: undefined|ICoords, offsetX: undefined|number, offsetY:undefined|number){
   offset_coords.set({
     x: (camera_coords?.x||0) + (offsetX||0)*0.2,
     y: (camera_coords?.y||0) + (offsetY||0)*0.7
@@ -52,7 +83,7 @@ $: {
 
 $: terminal_container && openConsole(activeConsole)
 
-function openConsole(domain_launchfile){
+function openConsole(domain_launchfile: string){
   if(!domain_launchfile){
     return
   }
@@ -90,7 +121,8 @@ $: if(terminal_container && activeConsole=='' && launchfiles.length){
   fitaddon.fit()
 } 
 
-function runStopLaunchfile(command, domain, launchfile){
+
+function runStopLaunchfile(command: PossibleComands, domain: string, launchfile: string){
   const found_launchfile = getLaunchfile(domain, launchfile)
   const found_index = launchfiles.indexOf(found_launchfile)
 
@@ -102,13 +134,40 @@ function runStopLaunchfile(command, domain, launchfile){
   socket.emit(command, { domain, launchfile })
 }
 
+function saveChanges(){
+  socket.emit('save', { points, fields })
+}
+
+function addPoint(x: number, y: number, useWorldCoordinates=false){
+  points = [...points, {
+    x: useWorldCoordinates ? x : screen2world(x).x,
+    y: useWorldCoordinates ? y : screen2world(y).y,
+    index: points.reduce((p, n) => Math.max(p, n.index),0)+1,
+    has_cone: true,
+    key: points.reduce((p, n) => Math.max(p, n.key),0)+1,
+  }]
+  show_canvas_menu = false
+}
+
+function getLaunchfile(domain: string, launchfile: string) {
+  return launchfiles.find(v => v.domain == domain && v.launchfile == launchfile)
+}
+
+function removePoint(index: number) {
+  points = points.filter(point => point.index != index)
+  for(let point of points){
+    if(point.index <= index) continue;
+
+    point.index = point.index - 1;
+  }
+}
+
 onMount(() => {
   if(!socket.connected){
     socket.connect()
   }
 
   resizeObserver.observe(left_pane);
-
 
   socket.on('connect', () => {
     socket.emit('get points')
@@ -118,16 +177,30 @@ onMount(() => {
 
   socket.on('disconnect', () => show_reconnecting = true)
 
-  socket.on('get points', (msg) => {
+  socket.on('get points', (msg: {
+    points: IPoint[]
+  }) => {
     points = []
-    for(let point of msg.points.sort((a,b) => a.index-b.index)){
+    for(let point of msg.points.sort((a:IPoint,b:IPoint) => a.index-b.index)){
       addPoint(point.x, point.y, true)
     }
   })
 
-  socket.on('perse_transform', msg => {
+  socket.on('perse_transform', (msg: {
+    rotation: {
+      w: number,
+        x: number,
+        y: number,
+        z: number
+    },
+    translation: {
+      x: number,
+      y: number,
+      z: number
+    }
+  }) => {
 
-    const [x,y,z] = quaternion2euler(
+    const [_x,_y,z] = quaternion2euler(
       [
         msg.rotation.w,
         msg.rotation.x,
@@ -144,11 +217,21 @@ onMount(() => {
     }
   })
 
-  socket.on('get fields', (msg) => {
+
+  socket.on('get fields', (msg: {
+    fields: {
+      [key: string]: IField
+    }
+  }) => {
     fields = Object.entries(msg.fields)
   })
 
-  socket.on('launchfile_is_alive', (msg) => {
+
+  socket.on('launchfile_is_alive', (msg: {
+    domain: string,
+    launchfile: string,
+    running: boolean
+  }) => {
     const found_launchfile = getLaunchfile(msg.domain, msg.launchfile)
     const found_index = launchfiles.indexOf(found_launchfile)
 
@@ -169,94 +252,66 @@ onMount(() => {
     console.log(`${msg.domain} ${msg.launchfile} is ${msg.running ? '' : 'not'} running`)
   })
 
-  socket.on('console_stdout', msg => {
+  socket.on('console_stdout', (msg: {
+      domain: string,
+      launchfile: string,
+      stdout: string
+    }) => {
     const found_launchfile = getLaunchfile(msg.domain, msg.launchfile)
 
-    if(found_launchfile == undefined) return
-
-    found_launchfile.terminal.write(msg.stdout)
+    found_launchfile?.terminal.write(msg.stdout)
   })
 
-  socket.on('set perse coords', (msg) => {
+  socket.on('set perse coords', (msg: {
+    coords: ICoords
+  }) => {
     for(let key in msg.coords){
       perse_coords[key] = msg.coords[key]
     }
   })
 
-  socket.on('saved', (msg) => {
+  socket.on('saved', (msg: {status: boolean}) => {
     unsaved = !msg.status
   })
 
 })
 
 
-function saveChanges(){
-  socket.emit('save', { points, fields })
-}
+let left_pane: HTMLDivElement;
+let right_pane: HTMLDivElement;
+let terminal_container: HTMLDivElement;
 
-
-let left_pane;
-let right_pane;
-let camera_coords;
 let show_canvas_menu = false
 let show_reconnecting = true;
 let unsaved = false;
-let terminal_container
 
-// variaveis|console
-let activeTab = 'variaveis'
-
+let activeTab: 'variaveis' | 'console' = 'variaveis'
 let activeConsole = ''
+let activeTool: 'move' | 'box' = 'box'
 
-// move|box
-let activeTool = 'box'
-
+let camera_coords: Spring<ICoords>;
 let perse_coords = {
   x: 0,
   y: 0,
   angle: 0
 }
-
 const offset_coords = writable({
 	x: 0,
 	y: 0
 });
 
 
-
-let points = []
+let points: IPoint[] = []
 const point_fields = ['x', 'y', 'has_cone']
 
-let fields = []
+let fields: Array<[string, IField]> = []
 $: fields, unsaved = true
 $: points, unsaved = true
 
 
-let launchfiles = []
+let launchfiles: ILaunchfile[] = []
 
-function addPoint(x: number, y: number, useWorldCoordinates=false){
-  points = [...points, {
-    x: useWorldCoordinates ? x : screen2world(x).x,
-    y: useWorldCoordinates ? y : screen2world(y).y,
-    index: points.reduce((p, n) => Math.max(p, n.index),0)+1,
-    has_cone: true,
-    key: points.reduce((p, n) => Math.max(p, n.key),0)+1,
-  }]
-  show_canvas_menu = false
-}
 
-function getLaunchfile(domain, launchfile){
-  return launchfiles.find(v => v.domain == domain && v.launchfile == launchfile)
-}
-
-function removePoint(index: number) {
-  points = points.filter(point => point.index != index)
-  for(let point of points){
-    if(point.index <= index) continue;
-
-    point.index = point.index - 1;
-  }
-}
 
 </script>
 
@@ -284,12 +339,12 @@ function removePoint(index: number) {
             {#if typeof v == 'boolean'}
               <input type="checkbox" bind:checked={v}>
             {:else if ['number', 'string'].includes(typeof v)}
-  <input
-type="text"
-bind:value={v}
-class:round_top={index==0 || typeof fields[index-1][1] == 'boolean'}
-class:round_bottom={index==fields.length-1 || typeof fields[index+1][1] == 'boolean'}
-  >
+              <input
+                type="text"
+                bind:value={v}
+                class:round_top={index==0 || typeof fields[index-1][1] == 'boolean'}
+                class:round_bottom={index==fields.length-1 || typeof fields[index+1][1] == 'boolean'}
+              >
             {/if}
 
           </div>
@@ -317,12 +372,12 @@ class:round_bottom={index==fields.length-1 || typeof fields[index+1][1] == 'bool
                 {#if typeof point[field] == 'boolean'}
                   <input type="checkbox" bind:checked={point[field]}>
                 {:else if ['number', 'string'].includes(typeof point[field])}
-  <input
-type="text"
-bind:value={point[field]}
-class:round_top={index==0 || typeof point[point_fields[index-1]] == 'boolean'}
-class:round_bottom={index==fields.length-1 || typeof point[point_fields[index+1]] == 'boolean'}
-  >
+                  <input
+                    type="text"
+                    bind:value={point[field]}
+                    class:round_top={index==0 || typeof point[point_fields[index-1]] == 'boolean'}
+                    class:round_bottom={index==fields.length-1 || typeof point[point_fields[index+1]] == 'boolean'}
+                  >
                 {/if}
 
               </div>
@@ -341,17 +396,13 @@ class:round_bottom={index==fields.length-1 || typeof point[point_fields[index+1]
           on:click={() => {
             activeConsole=`${launchfile.domain} ${launchfile.launchfile}`
 
-            // if(terminal_container){
-            //   launchfile.terminal.open(terminal_container)
-            //   fitaddon.fit()
-            // }
           } }>
             {launchfile.launchfile}
         </button>
       {/each}
     </nav>
 
-  <div id="terminal-container" bind:this={terminal_container} ></div>
+    <div id="terminal-container" bind:this={terminal_container} />
 
 
   {/if}
