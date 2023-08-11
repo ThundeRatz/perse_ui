@@ -3,7 +3,7 @@
   import { pannable } from "./pannable";
   import { fade } from 'svelte/transition';
   import ContextMenu from "./ContextMenu.svelte";
-  import { createEventDispatcher, onDestroy } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { world2screen, screen2world } from "./coordinates";
 
 
@@ -11,6 +11,8 @@
 
   export let x: number;
   export let y: number;
+
+  export let zoom_level: number = 1;
 
   export let index: number;
   export let camera_coords;
@@ -28,15 +30,15 @@
 
 $: coords.update(() => {
   return {
-    x: world2screen(Number(x)).x,
-    y: world2screen(Number(y)).y
+    x: world2screen(Number(x)).x * zoom_level,
+    y: world2screen(Number(y)).y * zoom_level
   }
 })
 
   function handlePanMove(event) {
     show_popup = true
-    x = Math.round((x + screen2world(event.detail.dx).x) * 100) / 100
-    y = Math.round((y + screen2world(event.detail.dy).y) * 100) / 100
+    x = Math.round((x + screen2world(event.detail.dx / zoom_level).x) * 100) / 100
+    y = Math.round((y + screen2world(event.detail.dy / zoom_level).y) * 100) / 100
   }
   let show_menu = false
 $: document.body.style.cursor = grabbing ? 'grabbing' : ''
@@ -54,7 +56,8 @@ background: {has_cone ? "#4773B2" : "#545454"};
 color: {has_cone ? "#1D1D1D" : "#e3e3e3"};
 border-color: {has_cone ? "#3662a1" : "#636363"};
 translate: {($camera_coords?.x||0) + $coords.x - 50/2}px {($camera_coords?.y||0) + $coords.y - 50/2}px;
-cursor: {grabbing ? 'grabbing' : 'grab'}
+cursor: {grabbing ? 'grabbing' : 'grab'};
+width: {50*zoom_level}px;
 "
 role="button"
 tabindex="0"
@@ -78,8 +81,8 @@ on:contextmenu={e => {
 
   {#if show_popup}
     <div class="popup" transition:fade>
-      <span>x: {Math.floor(screen2world($coords.x).x)}</span>
-      <span>y: {Math.floor(screen2world($coords.y).y)}</span>
+      <span>x: {Math.floor(screen2world($coords.x / zoom_level).x)}</span>
+      <span>y: {Math.floor(screen2world($coords.y / zoom_level).y)}</span>
     </div>
   {/if}
 </div>
@@ -105,9 +108,8 @@ on:contextmenu={e => {
       user-select: none;
       position: absolute;
       z-index: 1;
-      width: 50px;
       border-radius: 50%;
-      height: 50px;
+      aspect-ratio: 1/1;
       display: grid;
       place-items: center;
       border-width: 1.5px;

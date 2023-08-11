@@ -4,6 +4,8 @@
 	export let gridSpacing = 30
 	export let camera_coords;
 
+	export let zoom_level = 1;
+
 
 	const sketch = (p5) => {
 		p5.setup = () => {
@@ -22,16 +24,19 @@
 
 		p5.draw = () => {
 			p5.background('#393939')
-			for(let i = -1; i < p5.width/gridSpacing+1; i++){
+
+			const cellSize = gridSpacing * zoom_level
+
+			for(let i = -1; i < p5.width/cellSize+1; i++){
 				p5.line(
-					i*gridSpacing + ($camera_coords?.x||0)%gridSpacing, 0,
-					i*gridSpacing + ($camera_coords?.x||0)%gridSpacing, p5.height
+					i*cellSize + ($camera_coords?.x||0)%cellSize, 0,
+					i*cellSize + ($camera_coords?.x||0)%cellSize, p5.height
 				)
 			}
-			for(let i = 0; i < p5.height/gridSpacing; i++){
+			for(let i = 0; i < p5.height/cellSize; i++){
 				p5.line(
-					0,        i*gridSpacing + ($camera_coords?.y||0)%gridSpacing,
-					p5.width, i*gridSpacing + ($camera_coords?.y||0)%gridSpacing
+					0,        i*cellSize + ($camera_coords?.y||0)%cellSize,
+					p5.width, i*cellSize + ($camera_coords?.y||0)%cellSize
 				)
 			}
 		};

@@ -316,6 +316,7 @@ $: fields, unsaved = true
 $: points, unsaved = true
 
 
+
 let launchfiles: ILaunchfile[] = []
 
 
@@ -456,9 +457,15 @@ let launchfiles: ILaunchfile[] = []
       </div>
     {/if}
 
-    <Pannable bind:camera_coords={camera_coords} on:contextmenu={() => show_canvas_menu = true} >
+  <Pannable bind:camera_coords={camera_coords} onwheel={(e) => {
+    const clamp = (n, min, max) => Math.min(Math.max(n, min), max)
 
-    <BackgroundGrid camera_coords={camera_coords} />
+    console.log($zoom_level)
+    zoom_level.update($zoom_level => clamp($zoom_level - e.deltaY / 2000, 0.3, 1.1))
+
+  }} on:contextmenu={() => show_canvas_menu = true} >
+
+    <BackgroundGrid camera_coords={camera_coords} zoom_level={$zoom_level}/>
       {#each points as point (point.key)}
         <Point
           camera_coords={offset_coords}
@@ -467,7 +474,7 @@ let launchfiles: ILaunchfile[] = []
           index={point.index}
           has_cone={point.has_cone}
           on:remove={index => removePoint(index.detail)}
-
+          zoom_level={$zoom_level}
         />
       {/each}
 
@@ -476,6 +483,7 @@ let launchfiles: ILaunchfile[] = []
         bind:x={perse_coords.x}
         bind:y={perse_coords.y}
         bind:angle={perse_coords.angle}
+        zoom_level={$zoom_level}
       />
 
     </Pannable>

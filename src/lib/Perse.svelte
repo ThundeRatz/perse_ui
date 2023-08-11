@@ -7,6 +7,8 @@
   export let y: number = 0;
   export let angle: number = 0;
 
+  export let zoom_level: number = 1;
+
   export let camera_coords;
 
   const coords = spring({
@@ -18,7 +20,8 @@
 
 
   $: coords.update(() => ({
-      ...world2screen(-Number(x), -Number(y)),
+      x: world2screen(-Number(x), -Number(y)).x * zoom_level,
+      y: world2screen(-Number(x), -Number(y)).y * zoom_level,
       angle: angle+Math.PI*0.7
   }))
 
@@ -42,7 +45,9 @@
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <div style="
   translate: {($camera_coords?.x||0) + $coords.x - 100/2}px {($camera_coords?.y||0) + $coords.y - 50/2}px;
-  rotate: {$coords.angle}rad
+  rotate: {$coords.angle}rad;
+  width: {100*zoom_level}px;
+  font-size: {20*zoom_level}px;
   "
   role="button"
   tabindex="0"
@@ -79,8 +84,7 @@
       user-select: none;
       position: absolute;
       z-index: 1;
-      width: 100px;
-      height: 50px;
+      aspect-ratio: 2/1;
       display: grid;
       cursor: pointer;
       place-items: center;
