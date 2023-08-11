@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "server": "node server/src/index.js",
+    "server": "node server/src/perse_ui_server.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
