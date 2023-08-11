@@ -1,6 +1,6 @@
 const WORLD_FACTOR = {
-  x: 0.1,
-  y: -0.1
+  x: 0.05,
+  y: -0.05
 }
 
 

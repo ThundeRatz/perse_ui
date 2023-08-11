@@ -58,10 +58,15 @@ const OPTIONS_TERM = {
 
 const fitaddon = new FitAddon()
 
+const OFFSET_FACTOR = {
+  x: 100,
+  y: 700
+}
+
 function updateOffsetCoords(camera_coords: undefined|ICoords, offsetX: undefined|number, offsetY:undefined|number){
   offset_coords.set({
-    x: (camera_coords?.x||0) + (offsetX||0)*0.2,
-    y: (camera_coords?.y||0) + (offsetY||0)*0.7
+    x: (camera_coords?.x||0) + (offsetX||0),
+    y: (camera_coords?.y||0) + (offsetY||0)
   })
 }
 
@@ -71,14 +76,14 @@ const resizeObserver = new ResizeObserver((entries) => {
       fitaddon.fit()
       continue
     }else if(left_pane && entry.target == left_pane){
-      updateOffsetCoords($camera_coords, entry.contentRect.width*0.2, entry.contentRect.height*0.7)
+      updateOffsetCoords($camera_coords, OFFSET_FACTOR.x, OFFSET_FACTOR.y)
     }
   }
 });
 
 $: {
   const rect = left_pane?.getClientRects()[0]
-  rect && updateOffsetCoords($camera_coords, rect.width*0.2, rect.height*0.7)
+  rect && updateOffsetCoords($camera_coords, OFFSET_FACTOR.x, OFFSET_FACTOR.y)
 }
 
 $: terminal_container && openConsole(activeConsole)
@@ -299,6 +304,8 @@ const offset_coords = writable({
 	x: 0,
 	y: 0
 });
+
+const zoom_level = writable(1);
 
 
 let points: IPoint[] = []
