@@ -1,6 +1,7 @@
 # Perse UI
 
-![](./public/perse_ui.png)
+![](./public/perse_ui_darkmode.png)
+![](./public/perse_ui_darkmode_rodando.png)
 
 Uma interface para alterar as constantes e as posições dos cones do Perse
 
