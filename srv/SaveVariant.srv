@@ -1,0 +1,10 @@
+# Variant to save parameters
+string variant
+string node
+# A list of parameters to set.
+rcl_interfaces/Parameter[] parameters
+
+---
+
+# Indicates whether saving parameters succeeded or not and why.
+rcl_interfaces/SetParametersResult result

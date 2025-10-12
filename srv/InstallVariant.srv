@@ -1,0 +1,9 @@
+string variant
+string node
+# Path to save variant
+string path
+
+---
+
+# Indicates whether saving parameters succeeded or not and why.
+rcl_interfaces/SetParametersResult result

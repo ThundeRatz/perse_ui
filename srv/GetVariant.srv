@@ -1,0 +1,7 @@
+string variant
+string node
+
+---
+
+string[] names
+rcl_interfaces/ParameterValue[] values

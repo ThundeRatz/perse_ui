@@ -4,18 +4,22 @@
   <version>0.1.0</version>
   <description>Dashboard for Perse</description>
 
-  <maintainer email="alanjose@thunderatz.org">Alan José</maintainer>
-  <author email="alanjose@thunderatz.org">Alan José</author>
-  <license>Apache 2.0</license>
+  <maintainer email="comp@thunderatz.org">ThundeRatz</maintainer>
+  <license>MIT</license>
 
   <url type="website">https://thunderatz.org/</url>
   <url type="repository">https://github.com/ThundeRatz/perse</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
   <depend>rclpy</depend>
+  <depend>std_msgs</depend>
   <depend>rosbridge_suite</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
     <build_type>ament_cmake</build_type>

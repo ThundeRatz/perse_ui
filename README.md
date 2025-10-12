@@ -59,6 +59,50 @@ O projeto é um pacote ROS2 que consiste em duas partes principais:
 5.  **Acesse a interface:**
     Abra seu navegador e acesse `http://localhost:8000`.
 
+## 🚌 Barramento ROS
+
+A comunicação entre o nó `perse_ui` e outros nós ROS é feita através de mensagens e serviços.
+
+### Mensagens
+
+*   **`perse_ui/msg/NodeState`**: Representa o estado de um nó, incluindo o caminho de salvamento, o nome do nó, as variantes disponíveis e a variante padrão.
+    *   `string save_path`
+    *   `string node`
+    *   `string[] variants`
+    *   `string default_variant`
+*   **`perse_ui/msg/NodeStates`**: Uma lista de `NodeState`, representando o estado de múltiplos nós.
+    *   `NodeState[] states`
+
+### Serviços
+
+*   **`perse_ui/srv/DeleteVariant`**: Deleta uma variante de um nó.
+    *   **Request:**
+        *   `string variant`
+        *   `string node`
+    *   **Response:**
+        *   `rcl_interfaces/SetParametersResult result`
+*   **`perse_ui/srv/GetVariant`**: Obtém os parâmetros de uma variante de um nó.
+    *   **Request:**
+        *   `string variant`
+        *   `string node`
+    *   **Response:**
+        *   `string[] names`
+        *   `rcl_interfaces/ParameterValue[] values`
+*   **`perse_ui/srv/InstallVariant`**: Instala (aplica) uma variante em um nó.
+    *   **Request:**
+        *   `string variant`
+        *   `string node`
+        *   `string path`
+    *   **Response:**
+        *   `rcl_interfaces/SetParametersResult result`
+*   **`perse_ui/srv/SaveVariant`**: Salva os parâmetros de um nó em uma variante.
+    *   **Request:**
+        *   `string variant`
+        *   `string node`
+        *   `rcl_interfaces/Parameter[] parameters`
+    *   **Response:**
+        *   `rcl_interfaces/SetParametersResult result`
+
 ## 🛠️ Construído Com
 
 *   **ROS2:** Framework para robótica
