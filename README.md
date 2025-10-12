@@ -2,9 +2,9 @@
 
 ## 🌍 Visão Geral
 
-Perse UI é uma interface de usuário web para interagir com o [projeto Perse](https.github.com/Laboratorio-de-Automacao-e-Robotica/perse), fornecendo uma maneira intuitiva de visualizar e manipular dados em um ambiente ROS2.
+Perse UI é uma interface de usuário web para interagir com o [Perse](https://github.com/ThundeRatz/perse), fornecendo uma maneira intuitiva de visualizar e manipular dados em um ambiente ROS2.
 
-A interface permite o controle e visualização de waypoints, parâmetros de configuração e outros dados relevantes para a operação de robôs que utilizam o sistema Perse.
+A interface permite o controle e visualização de waypoints, parâmetros de configuração e outros dados relevantes para o Perse.
 
 ## 🏛️ Arquitetura
 
@@ -14,7 +14,7 @@ O projeto é um pacote ROS2 que consiste em duas partes principais:
 
 2.  **Interface de Usuário (UI):** Uma aplicação web de página única (SPA) desenvolvida com React, Vite e TypeScript, localizada na pasta `ui/`. A interface se conecta ao nó ROS2 para enviar comandos e receber atualizações em tempo real.
 
-![Placeholder para imagem da UI](https://via.placeholder.com/800x400.png?text=Perse+UI+Screenshot)
+![Placeholder para imagem da UI](./.readme/screenshot.png)
 
 ## ✨ Funcionalidades
 
