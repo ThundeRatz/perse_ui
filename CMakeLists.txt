@@ -1,37 +1,38 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
+project(perse_ui)
 
-set(LIB_MAJOR_VERSION "1")
-set(LIB_MINOR_VERSION "1")
-set(LIB_PATCH_VERSION "0")
-set(LIB_VERSION_STRING "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
-
-if (CMAKE_VERSION VERSION_LESS 3.0)
-   project(perse_ui)
-else()
-  cmake_policy(SET CMP0048 NEW)
-  PROJECT(perse_ui VERSION "${LIB_VERSION_STRING}")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(catkin REQUIRED)
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package()
+find_package(ament_cmake REQUIRED)
+find_package(Npm QUIET)
 
-#############
-## Install ##
-#############
+IF(Npm_FOUND)
+    add_custom_target(
+        npm-build ALL
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui
+        COMMAND npm install && npm run build
+        COMMENT "Running 'npm run build' inside 'ui' folder"
+    )
+ELSE()
+    message(WARNING "npm not found! UI couldn't be built. Using cache")
+ENDIF()
+message(WARNING "Using cache")
 
+install(DIRECTORY
+  ui/dist
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+  OPTIONAL
+ )
 
-add_custom_target (npm-target ALL
-   COMMENT "npm install"
-   COMMAND npm install
-   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
-
-
+# Install Python executables
 install(PROGRAMS
-   server/src/server.js
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  nodes/perse_ui.py
+  DESTINATION lib/${PROJECT_NAME}
 )
+
+ament_package()

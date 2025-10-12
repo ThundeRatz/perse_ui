@@ -1,0 +1,3 @@
+.sticky-accordion-container>div {
+  overflow: visible !important;
+}

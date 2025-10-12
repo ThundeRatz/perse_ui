@@ -1,20 +1,24 @@
 <?xml version="1.0"?>
-<package>
+<package format="3">
   <name>perse_ui</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>Dashboard for Perse</description>
 
   <maintainer email="alanjose@thunderatz.org">Alan José</maintainer>
+  <author email="alanjose@thunderatz.org">Alan José</author>
   <license>Apache 2.0</license>
 
+  <url type="website">https://thunderatz.org/</url>
+  <url type="repository">https://github.com/ThundeRatz/perse</url>
 
-  <!-- Url tags are optional, but multiple are allowed, one per tag -->
-  <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/rosnodejs_examples</url> -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <author email="alanjose@thunderatz.org">Alan José</author>
-  <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>std_msgs</run_depend>
+  <depend>rclpy</depend>
+  <depend>rosbridge_suite</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 
 </package>

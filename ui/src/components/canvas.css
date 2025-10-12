@@ -1,0 +1,3 @@
+div[data-slot="resizable-panel"] {
+    position: relative;
+}

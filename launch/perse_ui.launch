@@ -1,5 +1,0 @@
-<launch>
-    <rosparam command="load" file="$(find perse_ui)/server/config.yaml"/>
-    <param name="odometry_variables" value="$(find perse)/config/odometry_variables.yaml" />
-    <node pkg="perse_ui" type="perse_ui_server.js" name="perse_ui_node" output="screen"/>   
-</launch>

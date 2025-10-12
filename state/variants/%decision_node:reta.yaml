@@ -1,0 +1,30 @@
+/decision_node:
+  ros__parameters:
+    detection_x_offset: 0.0
+    dodge_speed: 0.15
+    kp: -1.0
+    max_angular_velocity: 1.0
+    minimum_vision_speed: 0.1
+    number_of_points: 2
+    reverse_speed: 0.15
+    robot_length: 0.3
+    use_sim_time: false
+    vision_kp: -0.7
+    p1:
+      dodge: false
+      has_cone: false
+      margin: 0.5
+      near_cone_area_percentage: 0.2
+      odom_speed: 0.3
+      vision_speed: 0.2
+      x: 3.52
+      y: 2.64
+    p2:
+      dodge: false
+      has_cone: false
+      margin: 0.5
+      near_cone_area_percentage: 0.0
+      odom_speed: 0.3
+      vision_speed: 0.2
+      x: 7.04
+      y: 0.0

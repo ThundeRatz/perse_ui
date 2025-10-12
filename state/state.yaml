@@ -1,0 +1,3 @@
+/decision_node:
+  default_variant: velocidade
+  save_path: ~/perse_ws/src/perse/config/odometry_variables.yaml
